@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: EMoVN4C+qIPv0RLFLpkQgkWvYCBOlK0tdnBMdF+Hz0Ulm7iuE++XyYnmdyY9FKmPGr0BqdSPv8mTCRNeZAv4cCzyHBZOLhLOriO7gkVp+KQ+GN9AwxrzWT1AXfbDJ98BOv2cvjVaU+sIIbBzvM4xBp9D8zv0hg55IzmXNTKttfEi48Y2NcugPG6ic0WljIGUn9weoMXuMRM4qZn7vMg0oRnuqeQWtIjXKF2R8TUIn0YJxDI0R7skzH4hQnGXcAOVRE37egIvTvdnF5AziaCCbZHrPqEQS2Ts4pOqg7Aqh11cjJshxKv49DJUBU+ObfUD9uwiNVlr+xjMy4/HgsTxZ5ICN11H/zZTP5JrYSB8hF72LCqUsICdBgyyH/s/1pThe8LPk/WVIE7Ju6SzjqVmVx31wNv0AofcXuWD2NoecP8ZBEe8v5dDI32wsXesX7JSWPx8QHvm2+02U+VfUnEDlREgjTzK75b+qufyk0Am+cRSOSGDxF1vxZ1MeYgrMIZxnms8uPk1FIAhZJu3DDJha4ZKhKuBDOzbxzdfjuMcNMajFIL9JbE4RSkSpwtICKpKHyfbYh28XmVVB77SuKZYX6jRMRN3h8ifJgVKbJx/MiaDNDql5IZ2BhGLYcEg2skVmP6o+YcuvXcG4wtiHXqLxWOKc/z1nJebHso7WgF/P/c=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/The-Heart-s-Highway--A-Romance-of-Virginia-in-the-Seventeenth-Century_4528
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
